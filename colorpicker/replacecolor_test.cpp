@@ -31,7 +31,7 @@ void ColorPickerPlugin::test_addAndReplaceColor()
     IEditor *currentEditor = EditorManager::instance()->openEditor(fileName);
     QVERIFY(currentEditor);
 
-    TextEditorWidget *editorWidget = qobject_cast<TextEditorWidget *>(currentEditor->widget());
+    auto editorWidget = qobject_cast<TextEditorWidget *>(currentEditor->widget());
     QVERIFY(editorWidget);
 
     Command *colorEditCommand = ActionManager::command(Constants::TRIGGER_COLOR_EDIT);
@@ -44,7 +44,7 @@ void ColorPickerPlugin::test_addAndReplaceColor()
     colors.insert(ColorFormat::QssHsvFormat, QColor(32, 18, 26));
     colors.insert(ColorFormat::HexFormat, QColor(32, 18, 26));
 
-    for (auto it = colors.begin(); it != colors.end();  ++it) {
+    for (auto it = colors.begin(); it != colors.end(); ++it) {
         d->colorModifier->insertColor(it.value(), it.key());
         colorEditCommand->action()->trigger();
     }

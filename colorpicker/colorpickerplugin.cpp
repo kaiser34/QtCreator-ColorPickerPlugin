@@ -98,14 +98,17 @@ void ColorPickerPluginImpl::setInsertOnChange(bool enable)
 void ColorPickerPluginImpl::editorSensitiveSettingChanged(bool isSensitive)
 {
     for (auto it = watchers.begin(); it != watchers.end(); ++it) {
-        ColorCategory newCat = (isSensitive) ? colorCategoryForEditor(it.key())
+        Core::IEditor *editor = it.key();
+
+        ColorCategory newCat = (isSensitive) ? colorCategoryForEditor(editor)
                                              : ColorCategory::AnyCategory;
 
         ColorWatcher *watcher = it.value();
         watcher->setColorCategory(newCat);
 
         // Update the color editor
-        TextEditorWidget *editorWidget = qobject_cast<TextEditorWidget *>(it.key()->widget());
+        auto editorWidget = qobject_cast<TextEditorWidget *>(editor->widget());
+
         Q_ASSERT(editorWidget);
 
         if (colorEditor->parentWidget() == editorWidget->viewport())
@@ -135,7 +138,7 @@ bool ColorPickerPlugin::initialize(const QStringList &arguments,
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    auto *optionsPage = new ColorPickerOptionsPage;
+    auto optionsPage = new ColorPickerOptionsPage;
     d->generalSettings = optionsPage->generalSettings();
 
     connect(optionsPage, &ColorPickerOptionsPage::generalSettingsChanged,
@@ -187,7 +190,7 @@ void ColorPickerPlugin::onColorEditTriggered()
     if (!currentEditor)
         return;
 
-    TextEditorWidget *editorWidget = qobject_cast<TextEditorWidget *>(currentEditor->widget());
+    auto editorWidget = qobject_cast<TextEditorWidget *>(currentEditor->widget());
 
     if (editorWidget) {
         ColorCategory cat = (d->generalSettings.m_editorSensitive)
@@ -222,7 +225,11 @@ void ColorPickerPlugin::onColorEditTriggered()
         QWidget *editorViewport = editorWidget->viewport();
 
         d->colorEditor->setParent(editorViewport);
-        d->colorEditor->move(d->clampColorEditorPosition(toEdit.pos, editorViewport->rect()));
+
+        QPoint newPos = d->clampColorEditorPosition(toEdit.pos,
+                                                    editorViewport->rect());
+
+        d->colorEditor->move(newPos);
 
         d->colorEditor->show();
     }

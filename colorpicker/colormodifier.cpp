@@ -49,7 +49,7 @@ void ColorModifier::insertColor(const QColor &newValue, ColorFormat asFormat)
     if (!currentEditor)
         return;
 
-    TextEditorWidget *editorWidget = qobject_cast<TextEditorWidget *>(currentEditor->widget());
+    auto editorWidget = qobject_cast<TextEditorWidget *>(currentEditor->widget());
     QTextCursor currentCursor = editorWidget->textCursor();
 
     QString newText = colorToString(newValue, asFormat);
