@@ -367,7 +367,7 @@ ColorEditor::ColorEditor(QWidget *parent) :
     d->btnGroup->addButton(d->vecBtn);
     d->btnGroup->addButton(d->hexBtn);
 
-    connect(d->btnGroup, static_cast<void (QButtonGroup::*)(QAbstractButton *)>(&QButtonGroup::buttonClicked),
+    connect(d->btnGroup, qOverload<QAbstractButton *>(&QButtonGroup::buttonClicked),
             [=] (QAbstractButton *btn) {
         ColorFormat format;
 
