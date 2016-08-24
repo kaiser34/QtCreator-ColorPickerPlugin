@@ -10,6 +10,7 @@
 namespace ColorPicker {
 namespace Internal {
 
+
 ////////////////////////// ColorPickerPluginImpl //////////////////////////
 
 class ColorPickerPluginImpl
@@ -17,6 +18,17 @@ class ColorPickerPluginImpl
 public:
     ColorPickerPluginImpl(ColorPickerPlugin *qq);
     ~ColorPickerPluginImpl();
+
+    /* functions */
+    ColorCategory colorCategoryForEditor(Core::IEditor *editor) const;
+    QPoint clampColorEditorPosition(const QPoint &cursorPos,
+                                    const QRect &rect) const;
+
+
+    void setInsertOnChange(bool enable);
+
+    void editorSensitiveSettingChanged(bool isSensitive);
+    void insertOnChangeSettingChanged(bool insertOnChange);
 
     /* variables */
     ColorPickerPlugin *q;

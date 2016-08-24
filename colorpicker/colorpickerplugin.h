@@ -18,13 +18,16 @@ class GeneralSettings;
 class ColorPickerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ColorPicker.json")
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin"
+                      FILE "ColorPicker.json")
 
 public:
     ColorPickerPlugin();
     ~ColorPickerPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
+    virtual bool initialize(const QStringList &arguments,
+                            QString *errorMessage);
+
     virtual void extensionsInitialized();
 
 private slots:
@@ -39,11 +42,7 @@ private slots:
     void test_addAndReplaceColor();
 
 private:
-    void setInsertOnChange(bool enable);
-
-    ColorCategory colorCategoryForEditor(Core::IEditor *editor) const;
-    QPoint clampColorEditorPosition(const QPoint &cursorPos, const QRect &rect) const;
-
+    friend class ColorPickerPluginImpl;
     QScopedPointer<ColorPickerPluginImpl> d;
 };
 
