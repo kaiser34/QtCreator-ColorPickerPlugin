@@ -8,8 +8,8 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
-    cpp.cxxFlags: "-std=c++11"
-    cpp.cxxLanguageVersion: "c++11"
+    cpp.cxxFlags: "-std=c++14"
+    cpp.cxxLanguageVersion: "c++14"
 
     files: [
         "colormodifier.cpp",
