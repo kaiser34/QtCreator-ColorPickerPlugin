@@ -37,9 +37,11 @@ void parseQCssRgbUChar(const QRegularExpressionMatch &match, QColor &result)
 
 void parseCssRgbPercent(const QRegularExpressionMatch &match, QColor &result)
 {
-    qreal r = match.captured(1).remove(QChar::fromLatin1('%')).toDouble() / 100;
-    qreal g = match.captured(2).remove(QChar::fromLatin1('%')).toDouble() / 100;
-    qreal b = match.captured(3).remove(QChar::fromLatin1('%')).toDouble() / 100;
+    QChar percentChar = QChar::fromLatin1('%');
+
+    qreal r = match.captured(1).remove(percentChar).toDouble() / 100;
+    qreal g = match.captured(2).remove(percentChar).toDouble() / 100;
+    qreal b = match.captured(3).remove(percentChar).toDouble() / 100;
 
     result.setRgbF(r, g, b);
 
@@ -70,9 +72,11 @@ void parseQssHsv(const QRegularExpressionMatch &match, QColor &result)
 
 void parseCssHsl(const QRegularExpressionMatch &match, QColor &result)
 {
+    QChar percentChar = QChar::fromLatin1('%');
+
     int h = match.captured(1).toInt();
-    int s = match.captured(2).remove(QChar::fromLatin1('%')).toInt() * 255 / 100;
-    int l = match.captured(3).remove(QChar::fromLatin1('%')).toInt() * 255 / 100;
+    int s = match.captured(2).remove(percentChar).toInt() * 255 / 100;
+    int l = match.captured(3).remove(percentChar).toInt() * 255 / 100;
 
     result.setHsl(h, s, l);
 
@@ -132,35 +136,43 @@ void cssRgbUCharToQString(const QColor &color, QString &prefix,
                           QString &parts)
 {
     prefix = QLatin1String("rgb(");
-    parts = QString::number(color.red()) + QLatin1String(", ")
-            + QString::number(color.green()) + QLatin1String(", ")
+
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = QString::number(color.red()) + COMMA_SEP_STRING
+            + QString::number(color.green()) + COMMA_SEP_STRING
             + QString::number(color.blue());
 
     qreal alpha = color.alphaF();
     if (alpha < 1.0) {
         prefix.insert(3, QLatin1Char('a'));
-        parts += QLatin1String(", ") + colorDoubleToQString(color.alphaF());
+        parts += COMMA_SEP_STRING + colorDoubleToQString(color.alphaF());
     }
 }
 
 void cssRgbPercentToQString(const QColor &color, QString &prefix,
                             QString &parts)
 {
+    QChar percentChar = QChar::fromLatin1('%');
+
     int rP = qRound(color.redF() * 100);
     int gP = qRound(color.greenF() * 100);
     int bP = qRound(color.blueF() * 100);
 
     prefix = QLatin1String("rgb(");
-    parts = QString::number(rP) + QChar::fromLatin1('%') + QLatin1String(", ")
+
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = QString::number(rP) + percentChar + COMMA_SEP_STRING
             + QString::number(gP)
-            + QChar::fromLatin1('%') + QLatin1String(", ")
-            + QString::number(bP) + QChar::fromLatin1('%');
+            + percentChar + COMMA_SEP_STRING
+            + QString::number(bP) + percentChar;
 
     qreal alpha = color.alphaF();
 
     if (alpha < 1.0) {
         prefix.insert(3, QLatin1Char('a'));
-        parts += QLatin1String(", ") + colorDoubleToQString(alpha);
+        parts += COMMA_SEP_STRING + colorDoubleToQString(alpha);
     }
 
 }
@@ -168,15 +180,18 @@ void cssRgbPercentToQString(const QColor &color, QString &prefix,
 void qssHsvToQString(const QColor &color, QString &prefix, QString &parts)
 {
     prefix = QLatin1String("hsv(");
-    parts = QString::number(color.hsvHue()) + QLatin1String(", ")
-            + QString::number(color.hsvSaturation()) + QLatin1String(", ")
+
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = QString::number(color.hsvHue()) + COMMA_SEP_STRING
+            + QString::number(color.hsvSaturation()) + COMMA_SEP_STRING
             + QString::number(color.value());
 
     int aP = qRound(color.alphaF() * 100);
 
     if (aP < 100) {
         prefix.insert(3, QLatin1Char('a'));
-        parts += QLatin1String(", ") + QString::number(aP)
+        parts += COMMA_SEP_STRING + QString::number(aP)
                 + QChar::fromLatin1('%');
     }
 }
@@ -188,33 +203,43 @@ void cssHslToQString(const QColor &color, QString &prefix, QString &parts)
     int sP = qRound(color.hslSaturationF() * 100);
     int lP = qRound(color.lightnessF() * 100);
 
-    parts = QString::number(color.hslHue()) + QLatin1String(", ")
-            + QString::number(sP) + QChar::fromLatin1('%')
-            + QLatin1String(", ")
-            + QString::number(lP) + QChar::fromLatin1('%');
+    QChar percentChar = QChar::fromLatin1('%');
+
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = QString::number(color.hslHue()) + COMMA_SEP_STRING
+            + QString::number(sP) + percentChar
+            + COMMA_SEP_STRING
+            + QString::number(lP) + percentChar;
 
     qreal alpha = color.alphaF();
     if (alpha < 1.0) {
         prefix.insert(3, QLatin1Char('a'));
-        parts += QLatin1String(", ") + colorDoubleToQString(color.alphaF());
+        parts += COMMA_SEP_STRING + colorDoubleToQString(color.alphaF());
     }
 }
 
 void qmlRgbaToQString(const QColor &color, QString &prefix, QString &parts)
 {
     prefix = QLatin1String("Qt.rgba(");
-    parts = colorDoubleToQString(color.redF()) + QLatin1String(", ")
-            + colorDoubleToQString(color.greenF()) + QLatin1String(", ")
-            + colorDoubleToQString(color.blueF()) + QLatin1String(", ")
+
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = colorDoubleToQString(color.redF()) + COMMA_SEP_STRING
+            + colorDoubleToQString(color.greenF()) + COMMA_SEP_STRING
+            + colorDoubleToQString(color.blueF()) + COMMA_SEP_STRING
             + colorDoubleToQString(color.alphaF());
 }
 
 void qmlHslaToQString(const QColor &color, QString &prefix, QString &parts)
 {
     prefix = QLatin1String("Qt.hsla(");
-    parts = colorDoubleToQString(color.hueF()) + QLatin1String(", ")
-            + colorDoubleToQString(color.saturationF()) + QLatin1String(", ")
-            + colorDoubleToQString(color.lightnessF()) + QLatin1String(", ")
+
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = colorDoubleToQString(color.hueF()) + COMMA_SEP_STRING
+            + colorDoubleToQString(color.saturationF()) + COMMA_SEP_STRING
+            + colorDoubleToQString(color.lightnessF()) + COMMA_SEP_STRING
             + colorDoubleToQString(color.alphaF());
 
 }
@@ -223,14 +248,16 @@ void glslColorToQString(const QColor &color, QString &prefix, QString &parts)
 {
     prefix = QLatin1String("vec");
 
-    parts = colorDoubleToQString(color.redF()) + QLatin1String(", ")
-            + colorDoubleToQString(color.greenF()) + QLatin1String(", ")
+    const QString COMMA_SEP_STRING = QLatin1String(", ");
+
+    parts = colorDoubleToQString(color.redF()) + COMMA_SEP_STRING
+            + colorDoubleToQString(color.greenF()) + COMMA_SEP_STRING
             + colorDoubleToQString(color.blueF());
 
     qreal alpha = color.alphaF();
     if (alpha < 1.0) {
         prefix.append(QLatin1Char('4'));
-        parts += QLatin1String(", ") + colorDoubleToQString(color.alphaF());
+        parts += COMMA_SEP_STRING + colorDoubleToQString(color.alphaF());
     } else {
         prefix.append(QLatin1Char('3'));
     }
@@ -372,7 +399,8 @@ QString colorToString(const QColor &color, ColorFormat format)
     if (format != ColorFormat::HexFormat)
         ret += QChar::fromLatin1(')');
 
-    Q_ASSERT_X(!ret.isNull(), Q_FUNC_INFO, "The string version of the color is invalid");
+    Q_ASSERT_X(!ret.isNull(),
+               Q_FUNC_INFO,"The string version of the color is invalid");
 
     return ret;
 }
