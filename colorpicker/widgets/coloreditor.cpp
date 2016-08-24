@@ -12,7 +12,7 @@
 #include <QStyleOption>
 
 // QtCreator includes
-#include <coreplugin/coreconstants.h>
+#include <coreplugin/coreicons.h>
 
 #include <utils/theme/theme.h>
 
@@ -306,7 +306,7 @@ ColorEditor::ColorEditor(QWidget *parent) :
     // Close button
     auto closeBtn = new QToolButton(this);
     closeBtn->setFixedSize(24, 24);
-    closeBtn->setIcon(QIcon(QLatin1String(Core::Constants::ICON_BUTTON_CLOSE)));
+    closeBtn->setIcon(Core::Icons::CLOSE_BACKGROUND.icon());
 
     connect(closeBtn, &QToolButton::clicked,
             this, &ColorEditor::close);

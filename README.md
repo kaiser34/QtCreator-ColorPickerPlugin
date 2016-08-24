@@ -34,7 +34,7 @@ Open the `Tools` menu and trigger the action `ColorPicker | Trigger Color Edit`,
 Please note
 -----------------
 
-- This plugin requires C++14 and  is developed for QtCreator >= 3.5.0.
+- This plugin requires C++14 and  is developed for QtCreator >= 4.0.0.
 
 - I use Qbs rather than QMake. It seems that there's currently no way to develop a plugin without having the whole QtCreator project opened.
 
