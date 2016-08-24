@@ -61,6 +61,12 @@ public:
 
     QAbstractButton *colorFormatToButton(ColorFormat format) const;
 
+    void onPickerColorChanged(const QColor &color);
+    void onHueChanged(int hue);
+    void onSaturationChanged(int saturation);
+    void onValueChanged(int value);
+    void onOpacityChanged(int opacity);
+
     /* variables */
     ColorEditor *q;
 
@@ -291,6 +297,62 @@ QAbstractButton *ColorEditorImpl::colorFormatToButton(ColorFormat format) const
     return ret;
 }
 
+void ColorEditorImpl::onPickerColorChanged(const QColor &color)
+{
+    QColor newColor(color);
+    newColor.setAlpha(opacitySlider->value());
+
+    updateColorWidgets(newColor, ColorEditorImpl::UpdateFromColorPicker);
+    setCurrentColor(newColor);
+}
+
+void ColorEditorImpl::onHueChanged(int hue)
+{
+    QColor newColor = QColor::fromHsv(hue,
+                                      color.hsvSaturation(),
+                                      color.value(),
+                                      opacitySlider->value());
+
+    updateColorWidgets(newColor, ColorEditorImpl::UpdateFromHueSlider);
+    setCurrentColor(newColor);
+}
+
+void ColorEditorImpl::onSaturationChanged(int saturation)
+{
+    QColor newColor = QColor::fromHsv(color.hsvHue(),
+                                      saturation,
+                                      color.value(),
+                                      opacitySlider->value());
+
+    updateColorWidgets(newColor,
+                          ColorEditorImpl::UpdateFromSaturationSlider);
+    setCurrentColor(newColor);
+}
+
+void ColorEditorImpl::onValueChanged(int value)
+{
+    QColor newColor = QColor::fromHsv(color.hsvHue(),
+                                      color.hsvSaturation(),
+                                      value,
+                                      opacitySlider->value());
+
+    updateColorWidgets(newColor,
+                          ColorEditorImpl::UpdateFromValueSlider);
+    setCurrentColor(newColor);
+}
+
+void ColorEditorImpl::onOpacityChanged(int opacity)
+{
+    QColor newColor = QColor::fromHsv(hueSlider->value(),
+                                      color.hsvSaturation(),
+                                      color.value(),
+                                      opacity);
+
+    updateColorWidgets(newColor,
+                          ColorEditorImpl::UpdateFromOpacitySlider);
+    setCurrentColor(newColor);
+}
+
 
 ////////////////////////// ColorEditor //////////////////////////
 
@@ -397,62 +459,19 @@ ColorEditor::ColorEditor(QWidget *parent) :
 
     // Color changes logic
     connect(d->colorPicker, &ColorPickerWidget::colorChanged,
-            [=](const QColor &pureColor) {
-        QColor newColor(pureColor);
-        newColor.setAlpha(d->opacitySlider->value());
-
-        d->updateColorWidgets(newColor, ColorEditorImpl::UpdateFromColorPicker);
-        d->setCurrentColor(newColor);
-    });
+            [=](const QColor &color) { d->onPickerColorChanged(color); });
 
     connect(d->hueSlider, &HueSlider::valueChanged,
-            [=](int hue) {
-        QColor newColor = QColor::fromHsv(hue,
-                                          d->color.hsvSaturation(),
-                                          d->color.value(),
-                                          d->opacitySlider->value());
-
-        d->updateColorWidgets(newColor,
-                              ColorEditorImpl::UpdateFromHueSlider);
-        d->setCurrentColor(newColor);
-    });
+            [=](int hue) { d->onHueChanged(hue); });
 
     connect(d->saturationSlider, &SaturationSlider::valueChanged,
-            [=](int sat) {
-        QColor newColor = QColor::fromHsv(d->color.hsvHue(),
-                                          sat,
-                                          d->color.value(),
-                                          d->opacitySlider->value());
-
-        d->updateColorWidgets(newColor,
-                              ColorEditorImpl::UpdateFromSaturationSlider);
-        d->setCurrentColor(newColor);
-    });
+            [=](int sat) { d->onSaturationChanged(sat); });
 
     connect(d->valueSlider, &ValueSlider::valueChanged,
-            [=](int val) {
-        QColor newColor = QColor::fromHsv(d->color.hsvHue(),
-                                          d->color.hsvSaturation(),
-                                          val,
-                                          d->opacitySlider->value());
-
-        d->updateColorWidgets(newColor,
-                              ColorEditorImpl::UpdateFromValueSlider);
-        d->setCurrentColor(newColor);
-    });
-
+            [=](int val) { d->onValueChanged(val); });
 
     connect(d->opacitySlider, &OpacitySlider::valueChanged,
-            [=](int opacity) {
-        QColor newColor = QColor::fromHsv(d->hueSlider->value(),
-                                          d->color.hsvSaturation(),
-                                          d->color.value(),
-                                          opacity);
-
-        d->updateColorWidgets(newColor,
-                              ColorEditorImpl::UpdateFromOpacitySlider);
-        d->setCurrentColor(newColor);
-    });
+            [=](int opacity) { d->onOpacityChanged(opacity); });
 
     setColorCategory(ColorCategory::AnyCategory);
     setOutputFormat(ColorFormat::QCssRgbUCharFormat);
