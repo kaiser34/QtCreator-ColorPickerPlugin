@@ -325,7 +325,7 @@ void ColorEditorImpl::onSaturationChanged(int saturation)
                                       opacitySlider->value());
 
     updateColorWidgets(newColor,
-                          ColorEditorImpl::UpdateFromSaturationSlider);
+                       ColorEditorImpl::UpdateFromSaturationSlider);
     setCurrentColor(newColor);
 }
 
@@ -337,7 +337,7 @@ void ColorEditorImpl::onValueChanged(int value)
                                       opacitySlider->value());
 
     updateColorWidgets(newColor,
-                          ColorEditorImpl::UpdateFromValueSlider);
+                       ColorEditorImpl::UpdateFromValueSlider);
     setCurrentColor(newColor);
 }
 
@@ -349,7 +349,7 @@ void ColorEditorImpl::onOpacityChanged(int opacity)
                                       opacity);
 
     updateColorWidgets(newColor,
-                          ColorEditorImpl::UpdateFromOpacitySlider);
+                       ColorEditorImpl::UpdateFromOpacitySlider);
     setCurrentColor(newColor);
 }
 
