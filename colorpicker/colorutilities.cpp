@@ -60,6 +60,7 @@ void parseQssHsv(const QRegularExpressionMatch &match, QColor &result)
     result.setHsv(h, s, v);
 
     QString possibleAlpha = match.captured(4);
+
     if (!possibleAlpha.isNull()) {
         qreal a = possibleAlpha.remove(QChar::fromLatin1('%')).toDouble() / 100;
 
@@ -175,7 +176,8 @@ void qssHsvToQString(const QColor &color, QString &prefix, QString &parts)
 
     if (aP < 100) {
         prefix.insert(3, QLatin1Char('a'));
-        parts += QLatin1String(", ") + colorDoubleToQString(aP);
+        parts += QLatin1String(", ") + QString::number(aP)
+                + QChar::fromLatin1('%');
     }
 }
 
