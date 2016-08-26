@@ -5,8 +5,6 @@
 
 #include "../colorutilities.h"
 
-class QAbstractButton;
-
 namespace ColorPicker {
 namespace Internal {
 
