@@ -1,6 +1,6 @@
 #include "colorpicker.h"
 
-#include <QDebug>
+#include <QDebug> //REMOVEME
 #include <QMouseEvent>
 #include <QPainter>
 
@@ -121,13 +121,14 @@ void ColorPickerWidgetImpl::updateInternalColor(const QColor &c)
 {
     float newHue = c.hueF();
 
-    if (color.hueF() != newHue)
+    if (color.hueF() != newHue) {
         createGradientImage(newHue);
+    }
 
     color = c;
 
     q->update();
-    emit q->colorChanged(c);
+    emit q->colorChanged(color);
 }
 
 
@@ -138,7 +139,6 @@ ColorPickerWidget::ColorPickerWidget(QWidget *parent) :
     d(new ColorPickerWidgetImpl(this))
 {
     setFocusPolicy(Qt::StrongFocus);
-    setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 ColorPickerWidget::~ColorPickerWidget()
@@ -156,10 +156,12 @@ QSize ColorPickerWidget::sizeHint() const
 
 void ColorPickerWidget::setColor(const QColor &color)
 {
-    if (d->color != color) {
-        d->cursorPos = d->colorToPosition(color);
+    QColor newHsvColor = color.convertTo(QColor::Hsv);
 
-        d->updateInternalColor(color);
+    if (d->color != newHsvColor) {
+        d->cursorPos = d->colorToPosition(newHsvColor);
+
+        d->updateInternalColor(newHsvColor);
     }
 }
 
@@ -201,20 +203,24 @@ void ColorPickerWidget::keyPressEvent(QKeyEvent *e)
 
     switch (e->key()) {
     case Qt::Key_Left:
-        if (s > 0)
+        if (s > 0) {
             --s;
+        }
         break;
     case Qt::Key_Right:
-        if (s < 255)
+        if (s < 255) {
             ++s;
+        }
         break;
     case Qt::Key_Up:
-        if (v < 255)
+        if (v < 255) {
             ++v;
+        }
         break;
     case Qt::Key_Down:
-        if (v > 0)
+        if (v > 0) {
             --v;
+        }
         break;
     default:
         e->ignore();
