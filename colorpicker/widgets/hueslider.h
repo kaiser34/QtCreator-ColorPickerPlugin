@@ -11,7 +11,7 @@ class HueSlider : public AdvancedSlider
     Q_OBJECT
 
 public:
-    explicit HueSlider(QWidget *parent = 0);
+    explicit HueSlider(QWidget *parent = nullptr);
     ~HueSlider();
 
 protected:

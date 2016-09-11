@@ -15,7 +15,7 @@ class ColorPickerSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ColorPickerSettingsWidget(QWidget *parent = 0);
+    explicit ColorPickerSettingsWidget(QWidget *parent = nullptr);
     ~ColorPickerSettingsWidget();
 
     void settingsFromUI(GeneralSettings *settings);

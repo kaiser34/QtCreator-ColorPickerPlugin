@@ -17,7 +17,7 @@ class ColorPickerOptionsPage : public Core::IOptionsPage
     Q_OBJECT
 
 public:
-    explicit ColorPickerOptionsPage(QObject *parent = 0);
+    explicit ColorPickerOptionsPage(QObject *parent = nullptr);
     ~ColorPickerOptionsPage();
 
     const GeneralSettings &generalSettings() const;

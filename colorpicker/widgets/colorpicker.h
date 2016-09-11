@@ -15,7 +15,7 @@ class ColorPickerWidget : public QWidget
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
-    explicit ColorPickerWidget(QWidget *parent = 0);
+    explicit ColorPickerWidget(QWidget *parent = nullptr);
     ~ColorPickerWidget();
 
     QColor color() const;

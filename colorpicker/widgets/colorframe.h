@@ -13,7 +13,7 @@ class ColorFrame : public QFrame
     Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
 
 public:
-    explicit ColorFrame(QWidget *parent = 0);
+    explicit ColorFrame(QWidget *parent = nullptr);
 
     QColor color() const;
     void setColor(const QColor &color);

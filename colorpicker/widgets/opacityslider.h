@@ -13,7 +13,7 @@ class OpacitySlider : public AdvancedSlider
     Q_OBJECT
 
 public:
-    explicit OpacitySlider(QWidget *parent = 0);
+    explicit OpacitySlider(QWidget *parent = nullptr);
     ~OpacitySlider();
 
     void hsv(int *h, int *s, int *v) const;

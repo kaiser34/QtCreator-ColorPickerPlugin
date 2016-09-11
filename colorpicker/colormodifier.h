@@ -15,7 +15,7 @@ class ColorModifier : public QObject
     Q_OBJECT
 
 public:
-    explicit ColorModifier(QObject *parent = 0);
+    explicit ColorModifier(QObject *parent = nullptr);
     ~ColorModifier();
 
     void insertColor(const QColor &newValue, ColorFormat asFormat);

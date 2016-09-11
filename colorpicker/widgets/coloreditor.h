@@ -20,7 +20,7 @@ class ColorEditor : public QFrame
     Q_PROPERTY(int opacity READ opacity WRITE setOpacity NOTIFY opacityChanged)
 
 public:
-    explicit ColorEditor(QWidget *parent = 0);
+    explicit ColorEditor(QWidget *parent = nullptr);
     ~ColorEditor();
 
     ColorCategory colorCategory() const;

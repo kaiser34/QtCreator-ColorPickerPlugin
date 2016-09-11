@@ -11,7 +11,7 @@ class SaturationSlider : public AdvancedSlider
     Q_OBJECT
 
 public:
-    explicit SaturationSlider(QWidget *parent = 0);
+    explicit SaturationSlider(QWidget *parent = nullptr);
 
     void hsv(int *h, int *s, int *v) const;
     void setHue(int h);

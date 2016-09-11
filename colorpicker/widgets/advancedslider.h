@@ -11,7 +11,7 @@ class AdvancedSlider : public QSlider
     Q_OBJECT
 
 public:
-    AdvancedSlider(QWidget *parent = 0);
+    AdvancedSlider(QWidget *parent = nullptr);
 
     void setValueAtomic(int newValue);
 
