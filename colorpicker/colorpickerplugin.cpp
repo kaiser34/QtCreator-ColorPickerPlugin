@@ -194,6 +194,7 @@ void ColorPickerPlugin::onColorEditTriggered()
                 ? d->colorCategoryForEditor(currentEditor)
                 : ColorCategory::AnyCategory;
 
+        // Create a watcher or apply an existing one to the current texteditor
         ColorWatcher *watcher = nullptr;
 
         if (!d->watchers.contains(currentEditor)) {
@@ -208,6 +209,7 @@ void ColorPickerPlugin::onColorEditTriggered()
 
         Q_ASSERT(watcher);
 
+        // If necessary, instanciate the color editor dialog
         if (!d->colorEditorDialog) {
             d->colorEditorDialog = new ColorEditorDialog(Core::ICore::mainWindow());
 
