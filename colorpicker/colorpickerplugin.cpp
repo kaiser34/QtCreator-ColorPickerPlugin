@@ -245,6 +245,8 @@ void ColorPickerPlugin::onColorEditTriggered()
 
         if (toEdit.value.isValid()) {
             newColor = toEdit.value;
+
+            const QSignalBlocker blocker(colorEditor);
             colorEditor->setOutputFormat(toEdit.format);
         } else {
             newColor = colorEditor->color();
