@@ -38,8 +38,10 @@ private slots:
     void onColorChanged(const QColor &color);
     void onOutputFormatChanged(ColorFormat format);
 
+#if defined(WITH_TESTS)
     // The following tests expect that no projects are loaded on start-up.
     void test_addAndReplaceColor();
+#endif
 
 private:
     friend class ColorPickerPluginImpl;
