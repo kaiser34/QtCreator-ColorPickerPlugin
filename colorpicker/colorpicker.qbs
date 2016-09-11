@@ -50,7 +50,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: project.testsEnabled
+        condition: (qtc) ? qtc.testsEnabled : project.testsEnabled
 
         files: [
             "replacecolor_test.cpp",
