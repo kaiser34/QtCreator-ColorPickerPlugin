@@ -223,24 +223,32 @@ void ColorPickerPlugin::onColorEditTriggered()
             d->setInsertOnChange(d->generalSettings.m_insertOnChange);
         }
 
-        ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
-        colorEditor->setColorCategory(cat);
-
+        // Process the color under cursor
         ColorExpr toEdit = watcher->process();
 
-        if (toEdit.value.isValid()) {
-            colorEditor->setOutputFormat(toEdit.format);
-            colorEditor->setColor(toEdit.value);
-        } else {
-            colorEditor->setColor(colorEditor->color());
-        }
-
+        // Move and show the dialog
         QWidget *editorViewport = editorWidget->viewport();
+
         QPoint newPos = d->clampColorEditorPosition(toEdit.pos,
                                                     editorViewport->rect());
 
         d->colorEditorDialog->move(editorViewport->mapToGlobal(newPos));
         d->colorEditorDialog->show();
+
+        // Update the color dialog to reflect the processed color
+        ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
+        colorEditor->setColorCategory(cat);
+
+        QColor newColor;
+
+        if (toEdit.value.isValid()) {
+            newColor = toEdit.value;
+            colorEditor->setOutputFormat(toEdit.format);
+        } else {
+            newColor = colorEditor->color();
+        }
+
+        colorEditor->setColor(newColor);
     }
 }
 
