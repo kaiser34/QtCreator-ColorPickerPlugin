@@ -54,6 +54,10 @@ void ColorModifier::insertColor(const QColor &newValue, ColorFormat asFormat)
 
     QString newText = colorToString(newValue, asFormat);
 
+    if (newText == currentCursor.selectedText()) {
+        return;
+    }
+
     currentCursor.insertText(newText);
     currentCursor.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
                                newText.size());
