@@ -46,6 +46,8 @@ QtcPlugin {
         "widgets/saturationslider.h",
         "widgets/valueslider.cpp",
         "widgets/valueslider.h",
+        "widgets/coloreditordialog.h",
+        "widgets/coloreditordialog.cpp"
     ]
 
     Group {

@@ -33,10 +33,11 @@ public:
 private slots:
     void onColorEditTriggered();
     void onGeneralSettingsChanged(const GeneralSettings &gs);
-    void onEditorAboutToClose();
     void onColorSelected(const QColor &color, ColorFormat format);
     void onColorChanged(const QColor &color);
     void onOutputFormatChanged(ColorFormat format);
+
+    void destroyColorEditorDialog();
 
 #if defined(WITH_TESTS)
     // The following tests expect that no projects are loaded on start-up.

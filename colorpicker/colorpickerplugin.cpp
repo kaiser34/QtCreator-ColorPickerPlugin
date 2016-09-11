@@ -8,6 +8,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <cppeditor/cppeditorconstants.h>
@@ -18,8 +19,13 @@
 #include <utils/theme/theme.h>
 
 // Plugin includes
+#include "colormodifier.h"
 #include "colorpickeroptionspage.h"
 #include "colorpickerconstants.h"
+#include "colorwatcher.h"
+
+#include "widgets/coloreditor.h"
+#include "widgets/coloreditordialog.h"
 
 using namespace Core;
 using namespace TextEditor;
@@ -34,7 +40,7 @@ ColorPickerPluginImpl::ColorPickerPluginImpl(ColorPickerPlugin *qq) :
     q(qq),
     watchers(),
     colorModifier(new ColorModifier(qq)),
-    colorEditor(nullptr),
+    colorEditorDialog(nullptr),
     generalSettings()
 {}
 
@@ -58,27 +64,28 @@ ColorCategory ColorPickerPluginImpl::colorCategoryForEditor(IEditor *editor) con
 QPoint ColorPickerPluginImpl::clampColorEditorPosition(const QPoint &cursorPos,
                                                        const QRect &rect) const
 {
-    QPoint ret;
-    ret.ry() = cursorPos.y();
-
-    int colorEditorWidth = colorEditor->width();
+    int colorEditorWidth = colorEditorDialog->width();
     int colorEditorHalfWidth = (colorEditorWidth / 2);
 
     int posX = cursorPos.x() - colorEditorHalfWidth;
     int widgetRight = rect.right();
 
-    if (posX < 0)
+    if (posX < 0) {
         posX = 0;
-    else if ( (cursorPos.x() + colorEditorHalfWidth) > (widgetRight) )
+    }
+    else if ( (cursorPos.x() + colorEditorHalfWidth) > (widgetRight) ) {
         posX = widgetRight - colorEditorWidth;
+    }
 
-    ret.rx() = posX;
+    QPoint ret(posX, cursorPos.y());
 
     return ret;
 }
 
 void ColorPickerPluginImpl::setInsertOnChange(bool enable)
 {
+    ColorEditor *colorEditor = colorEditorDialog->colorWidget();
+
     if (enable) {
         QObject::connect(colorEditor, &ColorEditor::colorChanged,
                          q, &ColorPickerPlugin::onColorChanged);
@@ -111,8 +118,9 @@ void ColorPickerPluginImpl::editorSensitiveSettingChanged(bool isSensitive)
 
         Q_ASSERT(editorWidget);
 
-        if (colorEditor->parentWidget() == editorWidget->viewport())
-            colorEditor->setColorCategory(newCat);
+        if (colorEditorDialog) {
+            colorEditorDialog->colorWidget()->setColorCategory(newCat);
+        }
     }
 }
 
@@ -171,18 +179,7 @@ bool ColorPickerPlugin::initialize(const QStringList &arguments,
 }
 
 void ColorPickerPlugin::extensionsInitialized()
-{
-    d->colorEditor = new ColorEditor; // no parent
-
-    // Create connections between internal objects
-    d->setInsertOnChange(d->generalSettings.m_insertOnChange);
-
-    connect(d->colorEditor, &ColorEditor::colorSelected,
-            this, &ColorPickerPlugin::onColorSelected);
-
-    connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
-            this, &ColorPickerPlugin::onEditorAboutToClose);
-}
+{}
 
 void ColorPickerPlugin::onColorEditTriggered()
 {
@@ -211,27 +208,40 @@ void ColorPickerPlugin::onColorEditTriggered()
 
         Q_ASSERT(watcher);
 
-        d->colorEditor->setColorCategory(cat);
+        if (!d->colorEditorDialog) {
+            d->colorEditorDialog = new ColorEditorDialog(Core::ICore::mainWindow());
+
+            connect(d->colorEditorDialog, &QDialog::finished,
+                    this, &ColorPickerPlugin::destroyColorEditorDialog);
+
+            d->setInsertOnChange(d->generalSettings.m_insertOnChange);
+
+            connect(d->colorEditorDialog->colorWidget(), &ColorEditor::colorSelected,
+                    this, &ColorPickerPlugin::onColorSelected);
+
+            connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
+                    this, &ColorPickerPlugin::destroyColorEditorDialog);
+
+        }
+
+        ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
+        colorEditor->setColorCategory(cat);
 
         ColorExpr toEdit = watcher->process();
 
         if (toEdit.value.isValid()) {
-            d->colorEditor->setOutputFormat(toEdit.format);
-            d->colorEditor->setColor(toEdit.value);
+            colorEditor->setOutputFormat(toEdit.format);
+            colorEditor->setColor(toEdit.value);
         } else {
-            d->colorEditor->setColor(d->colorEditor->color());
+            colorEditor->setColor(colorEditor->color());
         }
 
         QWidget *editorViewport = editorWidget->viewport();
-
-        d->colorEditor->setParent(editorViewport);
-
         QPoint newPos = d->clampColorEditorPosition(toEdit.pos,
                                                     editorViewport->rect());
 
-        d->colorEditor->move(newPos);
-
-        d->colorEditor->show();
+        d->colorEditorDialog->move(editorViewport->mapToGlobal(newPos));
+        d->colorEditorDialog->show();
     }
 }
 
@@ -253,13 +263,7 @@ void ColorPickerPlugin::onGeneralSettingsChanged(const GeneralSettings &gs)
         d->insertOnChangeSettingChanged(insertOnChangeNewVal);
     }
 
-
     d->generalSettings = gs;
-}
-
-void ColorPickerPlugin::onEditorAboutToClose()
-{
-    d->colorEditor->setParent(0);
 }
 
 void ColorPickerPlugin::onColorSelected(const QColor &color,
@@ -270,12 +274,25 @@ void ColorPickerPlugin::onColorSelected(const QColor &color,
 
 void ColorPickerPlugin::onColorChanged(const QColor &color)
 {
-    d->colorModifier->insertColor(color, d->colorEditor->outputFormat());
+    ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
+
+    d->colorModifier->insertColor(color, colorEditor->outputFormat());
 }
 
 void ColorPickerPlugin::onOutputFormatChanged(ColorFormat format)
 {
-    d->colorModifier->insertColor(d->colorEditor->color(), format);
+    ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
+
+    d->colorModifier->insertColor(colorEditor->color(), format);
+}
+
+void ColorPickerPlugin::destroyColorEditorDialog()
+{
+    if (d->colorEditorDialog) {
+        d->colorEditorDialog->deleteLater();
+
+        d->colorEditorDialog = nullptr;
+    }
 }
 
 } // namespace Internal

@@ -1,15 +1,14 @@
 #ifndef COLORPICKERPLUGIN_P_H
 #define COLORPICKERPLUGIN_P_H
 
-#include "colormodifier.h"
-#include "colorwatcher.h"
 #include "generalsettings.h"
-
-#include "widgets/coloreditor.h"
 
 namespace ColorPicker {
 namespace Internal {
 
+class ColorEditorDialog;
+class ColorModifier;
+class ColorWatcher;
 
 ////////////////////////// ColorPickerPluginImpl //////////////////////////
 
@@ -35,7 +34,7 @@ public:
 
     QMap<Core::IEditor *, ColorWatcher *> watchers;
     ColorModifier *colorModifier;
-    ColorEditor *colorEditor;
+    ColorEditorDialog *colorEditorDialog;
 
     GeneralSettings generalSettings;
 };

@@ -49,7 +49,6 @@ signals:
     void opacityChanged(int);
 
 protected:
-    void paintEvent(QPaintEvent *) override;
     void keyPressEvent(QKeyEvent *e) override;
 
 private:

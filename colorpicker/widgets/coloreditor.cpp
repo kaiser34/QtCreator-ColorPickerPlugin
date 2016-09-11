@@ -72,6 +72,7 @@ public:
 
     ColorCategory category;
     ColorFormatSet availableFormats;
+    QMap<QAbstractButton *, ColorFormat> buttonToColorFormat;
 
     ColorFormat outputFormat;
     QColor color;
@@ -100,6 +101,7 @@ ColorEditorImpl::ColorEditorImpl(ColorEditor *qq) :
     q(qq),
     category(ColorCategory::CssCategory), // trick
     availableFormats(),
+    buttonToColorFormat(),
     outputFormat(),
     color(QColor::Hsv),
     colorPicker(new ColorPickerWidget(qq)),
@@ -358,18 +360,9 @@ ColorEditor::ColorEditor(QWidget *parent) :
     d(new ColorEditorImpl(this))
 {
     setFocusPolicy(Qt::StrongFocus);
-    setFrameShape(QFrame::StyledPanel);
     setCursor(QCursor(Qt::ArrowCursor));
 
     // Build UI
-    // Close button
-    auto closeBtn = new QToolButton(this);
-    closeBtn->setFixedSize(24, 24);
-    closeBtn->setIcon(Core::Icons::CLOSE_BACKGROUND.icon());
-
-    connect(closeBtn, &QToolButton::clicked,
-            this, &ColorEditor::close);
-
     // Color format selection
     d->rgbBtn->setText(QLatin1String("rgb"));
     d->hsvBtn->setText(QLatin1String("hsv"));
@@ -397,10 +390,9 @@ ColorEditor::ColorEditor(QWidget *parent) :
     rightLayout->addStretch();
 
     auto leftPanelLayout = new QVBoxLayout;
-    leftPanelLayout->addWidget(closeBtn);
     leftPanelLayout->addStretch();
 
-    auto *colorWidgetsLayout = new QHBoxLayout;
+    auto colorWidgetsLayout = new QHBoxLayout;
     colorWidgetsLayout->addWidget(d->colorPicker);
     colorWidgetsLayout->addWidget(d->hueSlider);
     colorWidgetsLayout->addWidget(d->saturationSlider);
@@ -408,11 +400,11 @@ ColorEditor::ColorEditor(QWidget *parent) :
     colorWidgetsLayout->addWidget(d->opacitySlider);
     colorWidgetsLayout->addLayout(rightLayout);
 
-    auto *centerLayout = new QVBoxLayout;
+    auto centerLayout = new QVBoxLayout;
     centerLayout->addLayout(colorWidgetsLayout);
     centerLayout->addLayout(d->formatsLayout);
 
-    auto *mainLayout = new QHBoxLayout(this);
+    auto mainLayout = new QHBoxLayout(this);
     mainLayout->addLayout(leftPanelLayout);
     mainLayout->addSpacing(0);
     mainLayout->addLayout(centerLayout);
@@ -426,30 +418,17 @@ ColorEditor::ColorEditor(QWidget *parent) :
     d->btnGroup->addButton(d->vecBtn);
     d->btnGroup->addButton(d->hexBtn);
 
+    d->buttonToColorFormat.insert(d->rgbBtn, ColorFormat::QCssRgbUCharFormat);
+    d->buttonToColorFormat.insert(d->hsvBtn, ColorFormat::QssHsvFormat);
+    d->buttonToColorFormat.insert(d->hslBtn, ColorFormat::CssHslFormat);
+    d->buttonToColorFormat.insert(d->qmlRgbaBtn, ColorFormat::QmlRgbaFormat);
+    d->buttonToColorFormat.insert(d->qmlHslaBtn, ColorFormat::QmlHslaFormat);
+    d->buttonToColorFormat.insert(d->vecBtn, ColorFormat::GlslFormat);
+    d->buttonToColorFormat.insert(d->hexBtn, ColorFormat::HexFormat);
+
     connect(d->btnGroup, qOverload<QAbstractButton *>(&QButtonGroup::buttonClicked),
             [=] (QAbstractButton *btn) {
-        ColorFormat format;
-
-        if (btn == d->rgbBtn) {
-            format = ColorFormat::QCssRgbUCharFormat;
-        }
-        else if (btn == d->hsvBtn) {
-            format = ColorFormat::QssHsvFormat;
-        }
-        else if (btn == d->hslBtn) {
-            format = ColorFormat::CssHslFormat;
-        }
-        else if (btn == d->qmlRgbaBtn) {
-            format = ColorFormat::QmlRgbaFormat;
-        }
-        else if (btn == d->qmlHslaBtn) {
-            format = ColorFormat::QmlHslaFormat;
-        }
-        else if (btn == d->vecBtn) {
-            format = ColorFormat::GlslFormat;
-        }
-        else if (btn == d->hexBtn)
-            format = ColorFormat::HexFormat;
+        ColorFormat format = d->buttonToColorFormat.value(btn);
 
         d->setCurrentFormat(format);
     });
@@ -569,26 +548,13 @@ void ColorEditor::setOpacity(int opacity)
     }
 }
 
-void ColorEditor::paintEvent(QPaintEvent *)
-{
-    QPainter painter(this);
-
-    QStyleOptionFrame opt;
-    initStyleOption(&opt);
-
-    Utils::Theme *creatorTheme = Utils::creatorTheme();
-
-    painter.setPen(creatorTheme->color(Utils::Theme::TextColorNormal));
-    painter.setBrush(creatorTheme->color(Utils::Theme::BackgroundColorNormal));
-    painter.drawRoundedRect(opt.rect.adjusted(0, 0, -1, -1), 3, 3);
-}
-
 void ColorEditor::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
 
-    if (key == Qt::Key_Return || key == Qt::Key_Enter)
+    if (key == Qt::Key_Return || key == Qt::Key_Enter) {
         emit colorSelected(d->color, d->outputFormat);
+    }
 }
 
 } // namespace Internal
