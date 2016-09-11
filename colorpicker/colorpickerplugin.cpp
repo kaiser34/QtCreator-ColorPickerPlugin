@@ -214,14 +214,13 @@ void ColorPickerPlugin::onColorEditTriggered()
             connect(d->colorEditorDialog, &QDialog::finished,
                     this, &ColorPickerPlugin::destroyColorEditorDialog);
 
-            d->setInsertOnChange(d->generalSettings.m_insertOnChange);
-
             connect(d->colorEditorDialog->colorWidget(), &ColorEditor::colorSelected,
                     this, &ColorPickerPlugin::onColorSelected);
 
             connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
                     this, &ColorPickerPlugin::destroyColorEditorDialog);
 
+            d->setInsertOnChange(d->generalSettings.m_insertOnChange);
         }
 
         ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
@@ -247,18 +246,18 @@ void ColorPickerPlugin::onColorEditTriggered()
 
 void ColorPickerPlugin::onGeneralSettingsChanged(const GeneralSettings &gs)
 {
-    bool editorSensitiveOldVal = gs.m_editorSensitive;
-    bool editorSensitiveNewVal = d->generalSettings.m_editorSensitive;
-
-    bool insertOnChangeOldVal = gs.m_insertOnChange;
-    bool insertOnChangeNewVal = d->generalSettings.m_insertOnChange;
-
     // Setting : editor sensitive
+    bool editorSensitiveOldVal = d->generalSettings.m_editorSensitive;
+    bool editorSensitiveNewVal = gs.m_editorSensitive;
+
     if (editorSensitiveNewVal != editorSensitiveOldVal) {
         d->editorSensitiveSettingChanged(editorSensitiveNewVal);
     }
 
     // Setting : insert on change
+    bool insertOnChangeOldVal = d->generalSettings.m_insertOnChange;
+    bool insertOnChangeNewVal = gs.m_insertOnChange;
+
     if (insertOnChangeNewVal != insertOnChangeOldVal) {
         d->insertOnChangeSettingChanged(insertOnChangeNewVal);
     }
