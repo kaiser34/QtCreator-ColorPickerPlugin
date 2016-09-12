@@ -67,13 +67,15 @@ QPoint ColorPickerPluginImpl::clampColorEditorPosition(const QPoint &cursorPos,
     int colorEditorWidth = colorEditorDialog->width();
     int colorEditorHalfWidth = (colorEditorWidth / 2);
 
-    int posX = cursorPos.x() - colorEditorHalfWidth;
+    int cursorPosX = cursorPos.x();
+
+    int posX = cursorPosX - colorEditorHalfWidth;
     int widgetRight = rect.right();
 
     if (posX < 0) {
         posX = 0;
     }
-    else if ( (cursorPos.x() + colorEditorHalfWidth) > (widgetRight) ) {
+    else if ( (cursorPosX + colorEditorHalfWidth) > (widgetRight) ) {
         posX = widgetRight - colorEditorWidth;
     }
 
@@ -228,14 +230,13 @@ void ColorPickerPlugin::onColorEditTriggered()
         // Process the color under cursor
         ColorExpr toEdit = watcher->process();
 
-        // Move and show the dialog
-        QWidget *editorViewport = editorWidget->viewport();
+        // Show and move the dialog
+        d->colorEditorDialog->show();
 
+        QWidget *editorViewport = editorWidget->viewport();
         QPoint newPos = d->clampColorEditorPosition(toEdit.pos,
                                                     editorViewport->rect());
-
         d->colorEditorDialog->move(editorViewport->mapToGlobal(newPos));
-        d->colorEditorDialog->show();
 
         // Update the color dialog to reflect the processed color
         ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
