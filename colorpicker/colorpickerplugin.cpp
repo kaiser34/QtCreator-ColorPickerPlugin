@@ -140,7 +140,10 @@ ColorPickerPlugin::ColorPickerPlugin() :
 }
 
 ColorPickerPlugin::~ColorPickerPlugin()
-{}
+{
+    d->colorEditorDialog->deleteLater();
+    d->colorEditorDialog = nullptr;
+}
 
 bool ColorPickerPlugin::initialize(const QStringList &arguments,
                                    QString *errorMessage)
@@ -181,7 +184,15 @@ bool ColorPickerPlugin::initialize(const QStringList &arguments,
 }
 
 void ColorPickerPlugin::extensionsInitialized()
-{}
+{
+    // Creates the color editor dialog
+    d->colorEditorDialog = new ColorEditorDialog(Core::ICore::mainWindow());
+
+    connect(d->colorEditorDialog->colorWidget(), &ColorEditor::colorSelected,
+            this, &ColorPickerPlugin::onColorSelected);
+
+    d->setInsertOnChange(d->generalSettings.m_insertOnChange);
+}
 
 void ColorPickerPlugin::onColorEditTriggered()
 {
@@ -211,22 +222,6 @@ void ColorPickerPlugin::onColorEditTriggered()
 
         Q_ASSERT(watcher);
 
-        // If necessary, instanciate the color editor dialog
-        if (!d->colorEditorDialog) {
-            d->colorEditorDialog = new ColorEditorDialog(Core::ICore::mainWindow());
-
-            connect(d->colorEditorDialog, &QDialog::finished,
-                    this, &ColorPickerPlugin::destroyColorEditorDialog);
-
-            connect(d->colorEditorDialog->colorWidget(), &ColorEditor::colorSelected,
-                    this, &ColorPickerPlugin::onColorSelected);
-
-            connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
-                    this, &ColorPickerPlugin::destroyColorEditorDialog);
-
-            d->setInsertOnChange(d->generalSettings.m_insertOnChange);
-        }
-
         // Process the color under cursor
         ColorExpr toEdit = watcher->process();
 
@@ -239,6 +234,7 @@ void ColorPickerPlugin::onColorEditTriggered()
         d->colorEditorDialog->move(editorViewport->mapToGlobal(newPos));
 
         // Update the color dialog to reflect the processed color
+        Q_ASSERT(d->colorEditorDialog);
         ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
         colorEditor->setColorCategory(cat);
 
@@ -286,6 +282,7 @@ void ColorPickerPlugin::onColorSelected(const QColor &color,
 
 void ColorPickerPlugin::onColorChanged(const QColor &color)
 {
+    Q_ASSERT(d->colorEditorDialog);
     ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
 
     d->colorModifier->insertColor(color, colorEditor->outputFormat());
@@ -293,18 +290,10 @@ void ColorPickerPlugin::onColorChanged(const QColor &color)
 
 void ColorPickerPlugin::onOutputFormatChanged(ColorFormat format)
 {
+    Q_ASSERT(d->colorEditorDialog);
     ColorEditor *colorEditor = d->colorEditorDialog->colorWidget();
 
     d->colorModifier->insertColor(colorEditor->color(), format);
-}
-
-void ColorPickerPlugin::destroyColorEditorDialog()
-{
-    if (d->colorEditorDialog) {
-        d->colorEditorDialog->deleteLater();
-
-        d->colorEditorDialog = nullptr;
-    }
 }
 
 } // namespace Internal

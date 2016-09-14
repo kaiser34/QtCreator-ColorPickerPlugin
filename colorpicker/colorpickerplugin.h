@@ -37,8 +37,6 @@ private slots:
     void onColorChanged(const QColor &color);
     void onOutputFormatChanged(ColorFormat format);
 
-    void destroyColorEditorDialog();
-
 #if defined(WITH_TESTS)
     // The following tests expect that no projects are loaded on start-up.
     void test_addAndReplaceColor();
